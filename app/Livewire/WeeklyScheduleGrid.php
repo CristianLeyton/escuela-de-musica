@@ -173,6 +173,6 @@ class WeeklyScheduleGrid extends Component
 
     public function render()
     {
-        return view('livewire.weekly-schedule-grid');
+        return view('livewire.schedule-filter');
     }
 }

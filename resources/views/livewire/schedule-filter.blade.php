@@ -11,7 +11,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Profesor</label>
                 <select wire:model.live="teacher_id"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
                     <option value="">Todos los profesores</option>
                     @foreach ($teachers as $teacher)
                         <option value="{{ $teacher['id'] }}">{{ $teacher['name'] }}</option>
@@ -23,7 +23,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Instrumento</label>
                 <select wire:model.live="instrument_id"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
                     <option value="">Todos los instrumentos</option>
                     @foreach ($instruments as $instrument)
                         <option value="{{ $instrument['id'] }}">{{ $instrument['name'] }}</option>
@@ -35,7 +35,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sede</label>
                 <select wire:model.live="branch_id"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
                     <option value="">Todas las sedes</option>
                     @foreach ($branches as $branch)
                         <option value="{{ $branch['id'] }}">{{ $branch['name'] }}</option>
@@ -47,7 +47,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Edad</label>
                 <select wire:model.live="age_group"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
                     <option value="">Todos los grupos</option>
                     @foreach ($ageGroups as $ageGroup)
                         <option value="{{ $ageGroup }}">{{ $ageGroup }}</option>
@@ -58,8 +58,14 @@
             <!-- Botón Limpiar -->
             <div class="flex items-end">
                 <button wire:click="clearFilters"
-                    class="w-full bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">
-                    Limpiar Filtros
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-4 rounded-lg transition-colors">
+                    <div class="flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Limpiar Filtros</span>
+                    </div>
                 </button>
             </div>
         </div>
@@ -68,7 +74,8 @@
     <!-- Loading State -->
     @if ($loading)
         <div class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600">
+            </div>
             <span class="ml-2 text-gray-600">Cargando horarios...</span>
         </div>
     @else
@@ -81,8 +88,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <p class="text-lg font-medium">No hay clases para los filtros seleccionados</p>
-                    <p class="text-sm mt-2">Intenta ajustar los filtros</p>
+                    <p class="text-lg font-medium text-gray-900">No hay clases para los filtros seleccionados</p>
+                    <p class="text-sm mt-2 text-gray-500">Intenta ajustar los filtros</p>
                 </div>
             @else
                 <div class="overflow-x-auto">
@@ -103,7 +110,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($availableHours as $hour)
-                                <tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {{ $hour }}
                                     </td>
@@ -116,7 +123,7 @@
                                             @if (empty($classes))
                                                 <!-- Celda vacía - disponible -->
                                                 <div
-                                                    class="h-16 bg-green-50 rounded border border-green-200 flex items-center justify-center">
+                                                    class="h-16 bg-green-50 rounded border border-green-200 flex items-center justify-center hover:bg-green-100 transition-colors cursor-pointer">
                                                     <span class="text-xs text-green-600">Disponible</span>
                                                 </div>
                                             @else
@@ -149,33 +156,27 @@
         </div>
     @endif
 
-    <!-- Modal de Detalles de Clase -->
+    <!-- Modal de Detalles de Clase - Estilo Filament -->
     @if ($showClassModal && $selectedClass)
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-opacity duration-300"
+        <div class="fixed inset-0 bg-gray-950/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-opacity duration-300"
             wire:click="closeModal">
             <div class="relative top-20 mx-auto p-4 w-11/12 md:w-2/3 lg:w-1/2 max-w-2xl" wire:click.stop>
-                <div class="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
-                    <!-- Header con color de acento -->
-                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-white/20 p-2 rounded-lg">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">{{ $selectedClass['instrument']['name'] }}
-                                    </h3>
-                                    <p class="text-indigo-200 text-sm">{{ $selectedClass['day_of_week'] }} •
-                                        {{ \Carbon\Carbon::parse($selectedClass['start_time'])->format('H:i') }} -
-                                        {{ \Carbon\Carbon::parse($selectedClass['end_time'])->format('H:i') }}</p>
-                                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <!-- Header estilo Filament -->
+                    <div class="px-6 py-4 border-b border-gray-200 bg-white">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    {{ $selectedClass['instrument']['name'] }}
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    {{ $selectedClass['day_of_week'] }} •
+                                    {{ \Carbon\Carbon::parse($selectedClass['start_time'])->format('H:i') }} -
+                                    {{ \Carbon\Carbon::parse($selectedClass['end_time'])->format('H:i') }}
+                                </p>
                             </div>
                             <button wire:click="closeModal"
-                                class="bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition-all duration-200">
+                                class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12"></path>
@@ -184,11 +185,11 @@
                         </div>
                     </div>
 
-                    <div class="p-6">
-                        <!-- Información del Profesor y Ubicación -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div class="flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-                                <div class="bg-indigo-100 p-2 rounded-lg shrink-0">
+                    <div class="p-6 space-y-6">
+                        <!-- Información Principal - Grid de 2 columnas -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-indigo-50 rounded-lg shrink-0">
                                     <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -197,16 +198,16 @@
                                 </div>
                                 <div>
                                     <label
-                                        class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Profesor</label>
-                                    <p class="text-gray-900 font-medium">
+                                        class="text-xs font-medium text-gray-500 uppercase tracking-wider">Profesor</label>
+                                    <p class="text-sm font-medium text-gray-900">
                                         {{ $selectedClass['teacher']['user']['name'] }}
                                         {{ $selectedClass['teacher']['user']['lastname'] }}
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="flex items-start space-x-3 bg-gray-50 p-4 rounded-lg">
-                                <div class="bg-emerald-100 p-2 rounded-lg shrink-0">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-emerald-50 rounded-lg shrink-0">
                                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -217,68 +218,64 @@
                                 </div>
                                 <div>
                                     <label
-                                        class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ubicación</label>
-                                    <p class="text-gray-900 font-medium">{{ $selectedClass['branch']['name'] }}</p>
-                                    <p class="text-sm text-gray-600">Aula:
+                                        class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</label>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ $selectedClass['branch']['name'] }}</p>
+                                    <p class="text-xs text-gray-500">Aula:
                                         {{ $selectedClass['classroom']['name'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Estado del horario -->
-                        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg mb-6">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-sm font-medium text-gray-700">Estado del horario:</span>
-                                @switch($selectedClass['status'])
-                                    @case('available')
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                            Disponible
-                                        </span>
-                                    @break
+                        <!-- Estado Badge -->
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">Estado:</span>
+                            @switch($selectedClass['status'])
+                                @case('available')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 ring-1 ring-emerald-600/20">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
+                                        Disponible
+                                    </span>
+                                @break
 
-                                    @case('occupied')
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                                            Ocupado
-                                        </span>
-                                    @break
+                                @case('occupied')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 ring-1 ring-amber-600/20">
+                                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1.5"></span>
+                                        Ocupado
+                                    </span>
+                                @break
 
-                                    @case('cancelled')
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                            Cancelado
-                                        </span>
-                                    @break
+                                @case('cancelled')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 ring-1 ring-red-600/20">
+                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
+                                        Cancelado
+                                    </span>
+                                @break
 
-                                    @default
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                                            {{ $selectedClass['status'] }}
-                                        </span>
-                                @endswitch
-                            </div>
+                                @default
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 ring-1 ring-gray-600/20">
+                                        {{ $selectedClass['status'] }}
+                                    </span>
+                            @endswitch
+
                             @if (!$selectedClass['is_active'])
                                 <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                    </svg>
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                                     Inactivo
                                 </span>
                             @endif
                         </div>
 
-                        <!-- Estudiantes Inscriptos -->
-                        <div class="mb-6">
-                            <div class="flex items-center justify-between mb-3">
-                                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                        <!-- Estudiantes Inscriptos - Estilo Filament Section -->
+                        <div class="border border-gray-200 rounded-xl overflow-hidden">
+                            <div
+                                class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                                <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -286,80 +283,86 @@
                                     Estudiantes Inscriptos
                                     @if (isset($selectedClass['enrollments']))
                                         <span
-                                            class="ml-2 bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
                                             {{ count(array_filter($selectedClass['enrollments'], fn($e) => $e['student'])) }}
                                         </span>
                                     @endif
                                 </h4>
                             </div>
 
-                            @if (isset($selectedClass['enrollments']) && count($selectedClass['enrollments']) > 0)
-                                <div class="space-y-2 max-h-48 overflow-y-auto">
-                                    @foreach ($selectedClass['enrollments'] as $enrollment)
-                                        @if ($enrollment['student'])
-                                            <div
-                                                class="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg hover:shadow-md transition-shadow">
-                                                <div class="flex items-center space-x-3">
-                                                    <div
-                                                        class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold">
-                                                        {{ substr($enrollment['student']['user']['name'], 0, 1) }}{{ substr($enrollment['student']['user']['lastname'], 0, 1) }}
+                            <div class="p-4">
+                                @if (isset($selectedClass['enrollments']) && count($selectedClass['enrollments']) > 0)
+                                    <div class="space-y-2 max-h-56 overflow-y-auto">
+                                        @foreach ($selectedClass['enrollments'] as $enrollment)
+                                            @if ($enrollment['student'])
+                                                <div
+                                                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
+                                                            {{ substr($enrollment['student']['user']['name'], 0, 1) }}
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm font-medium text-gray-900">
+                                                                {{ $enrollment['student']['user']['name'] }}
+                                                                {{ $enrollment['student']['user']['lastname'] }}
+                                                            </p>
+                                                            <p class="text-xs text-gray-500">
+                                                                {{ $enrollment['student']['age_group'] }}</p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium text-gray-900">
-                                                            {{ $enrollment['student']['user']['name'] }}
-                                                            {{ $enrollment['student']['user']['lastname'] }}
-                                                        </p>
-                                                        <p class="text-xs text-gray-500">
-                                                            {{ $enrollment['student']['age_group'] }}</p>
-                                                    </div>
+                                                    <span
+                                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $enrollment['status'] === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600' }}">
+                                                        {{ $enrollment['status'] === 'active' ? 'Activa' : $enrollment['status'] }}
+                                                    </span>
                                                 </div>
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $enrollment['status'] === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                    {{ $enrollment['status'] === 'active' ? 'Activa' : $enrollment['status'] }}
-                                                </span>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @else
-                                <div
-                                    class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                    </svg>
-                                    <p class="text-gray-500 font-medium">No hay estudiantes inscriptos</p>
-                                    <p class="text-sm text-gray-400 mt-1">Este horario está disponible para nuevas
-                                        inscripciones</p>
-                                </div>
-                            @endif
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <div
+                                            class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">No hay estudiantes inscriptos
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">Este horario está disponible para
+                                            nuevas
+                                            inscripciones</p>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
 
-                        <!-- Notas -->
+                        <!-- Notas - Estilo Filament -->
                         @if ($selectedClass['notes'])
-                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                                <div class="flex items-start space-x-2">
-                                    <svg class="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none"
+                            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                     <div>
-                                        <label class="text-sm font-semibold text-amber-800">Notas</label>
+                                        <h5 class="text-sm font-medium text-amber-800">Notas</h5>
                                         <p class="text-sm text-amber-700 mt-1">{{ $selectedClass['notes'] }}</p>
                                     </div>
                                 </div>
                             </div>
                         @endif
+                    </div>
 
-                        <!-- Botón de acción -->
-                        <div class="mt-6 flex justify-end">
-                            <button wire:click="closeModal"
-                                class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium px-6 py-2.5 rounded-lg transition-colors duration-200">
-                                Cerrar
-                            </button>
-                        </div>
+                    <!-- Footer estilo Filament -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                        <button wire:click="closeModal"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                            Cerrar
+                        </button>
                     </div>
                 </div>
             </div>
