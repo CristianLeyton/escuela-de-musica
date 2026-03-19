@@ -68,6 +68,7 @@ class ScheduleFilter extends Component
                 $this->teachers = $data['filters']['teachers'] ?? [];
                 $this->instruments = $data['filters']['instruments'] ?? [];
                 $this->ageGroups = $data['filters']['age_groups'] ?? [];
+                $this->branches = $data['filters']['branches'] ?? [];
             }
         } catch (\Exception $e) {
             Log::error('Error loading schedule data: ' . $e->getMessage());

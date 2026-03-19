@@ -11,7 +11,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Profesor</label>
                 <select wire:model.live="teacher_id"
-                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 transition-colors">
                     <option value="">Todos los profesores</option>
                     @foreach ($teachers as $teacher)
                         <option value="{{ $teacher['id'] }}">{{ $teacher['name'] }}</option>
@@ -23,7 +23,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Instrumento</label>
                 <select wire:model.live="instrument_id"
-                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 transition-colors">
                     <option value="">Todos los instrumentos</option>
                     @foreach ($instruments as $instrument)
                         <option value="{{ $instrument['id'] }}">{{ $instrument['name'] }}</option>
@@ -35,7 +35,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sede</label>
                 <select wire:model.live="branch_id"
-                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 transition-colors">
                     <option value="">Todas las sedes</option>
                     @foreach ($branches as $branch)
                         <option value="{{ $branch['id'] }}">{{ $branch['name'] }}</option>
@@ -47,7 +47,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Edad</label>
                 <select wire:model.live="age_group"
-                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-4 transition-colors">
+                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 transition-colors">
                     <option value="">Todos los grupos</option>
                     @foreach ($ageGroups as $ageGroup)
                         <option value="{{ $ageGroup }}">{{ $ageGroup }}</option>
@@ -58,7 +58,7 @@
             <!-- Botón Limpiar -->
             <div class="flex items-end">
                 <button wire:click="clearFilters"
-                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-4 rounded-lg transition-colors">
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
                     <div class="flex items-center justify-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
