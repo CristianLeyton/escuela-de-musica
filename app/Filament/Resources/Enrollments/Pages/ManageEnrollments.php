@@ -58,10 +58,9 @@ class ManageEnrollments extends ManageRecords
 
                     // Asignar fecha de inscripción actual
                     $data['enrollment_date'] = now();
+                    $data['status'] = 'active';
 
-                    // Limpiar campos temporales que no existen en el modelo
-                    unset($data['schedule_id']);
-
+                    // El schedule_id se mantiene para guardar en el modelo
                     return $data;
                 })
                 ->successNotification(

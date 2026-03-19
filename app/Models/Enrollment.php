@@ -17,6 +17,7 @@ class Enrollment extends Model
         'status',
         'grade',
         'notes',
+        'enrollment_date',
     ];
 
     protected $casts = [
