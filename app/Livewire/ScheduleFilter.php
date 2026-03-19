@@ -54,8 +54,6 @@ class ScheduleFilter extends Component
                 'instrument_id' => $this->instrument_id ?: null,
                 'age_group' => $this->age_group ?: null,
                 'branch_id' => $this->branch_id ?: null,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date,
             ]);
 
             if ($response->successful()) {

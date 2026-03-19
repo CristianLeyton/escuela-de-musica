@@ -22,18 +22,18 @@ class ManageEnrollments extends ManageRecords
                 ->mutateFormDataUsing(function (array $data): array {
                     Log::info('Datos recibidos del formulario:', $data);
 
-                    // Verificar que class_date existe
-                    if (empty($data['class_date'])) {
-                        Log::error('class_date está vacío');
+                    // Verificar que schedule_id existe
+                    if (empty($data['schedule_id'])) {
+                        Log::error('schedule_id está vacío');
                         Notification::make()
                             ->title('Error')
-                            ->body('Debes seleccionar una fecha para la clase')
+                            ->body('Debes seleccionar un horario para la inscripción')
                             ->danger()
                             ->send();
                         return $data;
                     }
 
-                    // Crear la clase (ClassModel) primero
+                    // Verificar que el horario existe y está activo
                     $schedule = Schedule::find($data['schedule_id']);
 
                     if (!$schedule) {
@@ -45,25 +45,22 @@ class ManageEnrollments extends ManageRecords
                         return $data;
                     }
 
-                    Log::info('Creando ClassModel con fecha: ' . $data['class_date']);
+                    if (!$schedule->is_active) {
+                        Notification::make()
+                            ->title('Error')
+                            ->body('El horario seleccionado no está activo')
+                            ->danger()
+                            ->send();
+                        return $data;
+                    }
 
-                    // Crear la clase específica para esta fecha
-                    $classModel = ClassModel::create([
-                        'schedule_id' => $schedule->id,
-                        'class_date' => $data['class_date'],
-                        'duration_minutes' => $schedule->start_time->diffInMinutes($schedule->end_time),
-                        'status' => 'scheduled',
-                    ]);
+                    Log::info('Creando inscripción para schedule_id: ' . $data['schedule_id']);
 
-                    Log::info('ClassModel creado:', ['id' => $classModel->id, 'date' => $classModel->class_date]);
-
-                    // Agregar el ID de la clase creada a los datos de inscripción
-                    $data['class_model_id'] = $classModel->id;
+                    // Asignar fecha de inscripción actual
                     $data['enrollment_date'] = now();
 
                     // Limpiar campos temporales que no existen en el modelo
                     unset($data['schedule_id']);
-                    unset($data['class_date']);
 
                     return $data;
                 })
