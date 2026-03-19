@@ -71,7 +71,7 @@ class StudentResource extends Resource
                 DatePicker::make('birth_date')
                     ->required()
                     ->label('Fecha de Nacimiento'),
-                TextInput::make('age_group')
+                Select::make('age_group')
                     ->required()
                     ->label('Grupo Etario')
                     ->options([

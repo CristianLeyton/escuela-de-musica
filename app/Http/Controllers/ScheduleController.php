@@ -27,7 +27,8 @@ class ScheduleController extends Controller
             'teacher.user',
             'branch',
             'classroom',
-            'instrument'
+            'instrument',
+            'enrollments.student.user'
         ]);
 
         // Aplicar filtros
@@ -71,6 +72,21 @@ class ScheduleController extends Controller
             }
 
             // Crear entrada para el schedule
+            $students = [];
+            $ageGroups = [];
+
+            // Cargar estudiantes desde enrollments
+            foreach ($schedule->enrollments as $enrollment) {
+                if ($enrollment->student && $enrollment->status === 'active') {
+                    $students[] = [
+                        'id' => $enrollment->student->id,
+                        'name' => $enrollment->student->user->name . ' ' . $enrollment->student->user->lastname,
+                        'age_group' => $enrollment->student->age_group,
+                    ];
+                    $ageGroups[] = $enrollment->student->age_group;
+                }
+            }
+
             $gridData[$schedule->day_of_week][$startTime][] = [
                 'id' => $schedule->id,
                 'schedule_id' => $schedule->id,
@@ -78,8 +94,8 @@ class ScheduleController extends Controller
                 'instrument' => $schedule->instrument->name,
                 'branch' => $schedule->branch->name,
                 'classroom' => $schedule->classroom->name ?? 'N/A',
-                'students' => [],
-                'age_groups' => [],
+                'students' => $students,
+                'age_groups' => array_unique($ageGroups),
                 'status' => $schedule->status,
                 'duration_minutes' => $schedule->start_time->diffInMinutes($schedule->end_time),
                 'start_time' => $startTime,
