@@ -7,6 +7,7 @@ use App\Models\ClassModel;
 use App\Models\Enrollment;
 use App\Models\Schedule;
 use Filament\Actions\CreateAction;
+use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -67,7 +68,9 @@ class ManageEnrollments extends ManageRecords
                             ->body('Este estudiante ya está inscrito en este horario')
                             ->danger()
                             ->send();
-                        return $data;
+                        throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                            response()->json(['message' => 'Duplicate enrollment'], 422)
+                        );
                     }
 
                     // Asignar status por defecto
