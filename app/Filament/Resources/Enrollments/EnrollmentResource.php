@@ -34,7 +34,7 @@ class EnrollmentResource extends Resource
 {
     protected static ?string $model = Enrollment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-m-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Inscripciones';
 
