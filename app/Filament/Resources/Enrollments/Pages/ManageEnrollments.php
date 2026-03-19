@@ -56,6 +56,20 @@ class ManageEnrollments extends ManageRecords
 
                     Log::info('Creando inscripción para schedule_id: ' . $data['schedule_id']);
 
+                    // Verificar si el estudiante ya está inscrito en este horario
+                    $existingEnrollment = \App\Models\Enrollment::where('schedule_id', $data['schedule_id'])
+                        ->where('student_id', $data['student_id'])
+                        ->first();
+
+                    if ($existingEnrollment) {
+                        Notification::make()
+                            ->title('Error')
+                            ->body('Este estudiante ya está inscrito en este horario')
+                            ->danger()
+                            ->send();
+                        return $data;
+                    }
+
                     // Asignar status por defecto
                     $data['status'] = 'active';
 
