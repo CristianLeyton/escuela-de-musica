@@ -56,8 +56,7 @@ class ManageEnrollments extends ManageRecords
 
                     Log::info('Creando inscripción para schedule_id: ' . $data['schedule_id']);
 
-                    // Asignar fecha de inscripción actual
-                    $data['enrollment_date'] = now();
+                    // Asignar status por defecto
                     $data['status'] = 'active';
 
                     // El schedule_id se mantiene para guardar en el modelo

@@ -17,11 +17,9 @@ class Enrollment extends Model
         'status',
         'grade',
         'notes',
-        'enrollment_date',
     ];
 
     protected $casts = [
-        'enrollment_date' => 'date',
         'grade' => 'decimal:2',
     ];
 
