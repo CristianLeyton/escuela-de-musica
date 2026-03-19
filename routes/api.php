@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\ScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed')
     ->name('verification.verify');
+
+// Schedule routes
+Route::get('/schedules/weekly', [ScheduleController::class, 'getWeeklySchedule']);
+Route::get('/schedules/{id}', [ScheduleController::class, 'getScheduleDetails']);

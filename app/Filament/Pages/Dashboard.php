@@ -10,7 +10,7 @@ class Dashboard extends BaseDashboard
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Home;
     
-    protected static ?string $title = 'Inicio';
+    protected static ?string $title = '';
     
     protected static ?string $navigationLabel = 'Inicio';
     

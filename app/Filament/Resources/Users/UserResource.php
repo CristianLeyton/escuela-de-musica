@@ -26,6 +26,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class UserResource extends Resource
 {
@@ -39,6 +40,7 @@ class UserResource extends Resource
     protected static ?string $pluralModelLabel = 'Usuarios';
     protected static bool $hasTitleCaseModelLabel = false;
     protected static ?int $navigationSort = 10;
+    protected static string | UnitEnum | null $navigationGroup = 'Configuración';
 
     public static function form(Schema $schema): Schema
     {
