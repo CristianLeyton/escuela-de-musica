@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('class_model_id')->constrained()->onDelete('cascade');
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->date('enrollment_date');
             $table->string('status')->default('active'); // active, completed, cancelled
             $table->decimal('grade', 4, 2)->nullable(); // Calificación
             $table->text('notes')->nullable();

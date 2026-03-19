@@ -12,8 +12,8 @@ class Enrollment extends Model
 
     protected $fillable = [
         'class_model_id',
+        'schedule_id',
         'student_id',
-        'enrollment_date',
         'status',
         'grade',
         'notes',
@@ -30,8 +30,19 @@ class Enrollment extends Model
         return $this->belongsTo(ClassModel::class);
     }
 
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    // Helper para obtener info del horario (desde schedule o classModel)
+    public function getActiveScheduleAttribute()
+    {
+        return $this->schedule ?? $this->classModel?->schedule;
     }
 }

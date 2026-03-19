@@ -71,8 +71,8 @@ class EscuelaMusicaSeeder extends Seeder
         $admin = User::firstOrCreate(['email' => 'admin@escuela.com'], [
             'name' => 'Administrador',
             'lastname' => 'Sistema',
-            'username' => 'admin_escuela',
-            'password' => Hash::make('password'),
+            'username' => 'admin',
+            'password' => Hash::make('admin'),
         ]);
         $admin->assignRole('admin');
 

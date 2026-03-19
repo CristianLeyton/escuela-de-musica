@@ -18,14 +18,11 @@ class WeeklyScheduleGrid extends Component
     public $instrument_id = null;
     public $age_group = null;
     public $branch_id = null;
-    public $start_date = null;
-    public $end_date = null;
 
     // Datos del grid
     public $gridData = [];
     public $availableHours = [];
     public $daysOfWeek = [];
-    public $dateRange = [];
     public $filters = [];
 
     // Estado
@@ -46,8 +43,6 @@ class WeeklyScheduleGrid extends Component
         'instrument_id',
         'age_group',
         'branch_id',
-        'start_date',
-        'end_date',
     ];
 
     public function mount()
@@ -66,8 +61,6 @@ class WeeklyScheduleGrid extends Component
                 'instrument_id' => $this->instrument_id,
                 'age_group' => $this->age_group,
                 'branch_id' => $this->branch_id,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date,
             ]);
 
             if ($response->successful()) {
@@ -76,7 +69,6 @@ class WeeklyScheduleGrid extends Component
                 $this->gridData = $data['data']['grid'] ?? [];
                 $this->availableHours = $data['data']['available_hours'] ?? [];
                 $this->daysOfWeek = $data['data']['days_of_week'] ?? [];
-                $this->dateRange = $data['data']['date_range'] ?? [];
 
                 // Cargar opciones para filtros
                 $this->filters = $data['filters'] ?? [];
@@ -132,18 +124,6 @@ class WeeklyScheduleGrid extends Component
         $this->loadScheduleData();
     }
 
-    public function updatedStartDate()
-    {
-        $this->resetPage();
-        $this->loadScheduleData();
-    }
-
-    public function updatedEndDate()
-    {
-        $this->resetPage();
-        $this->loadScheduleData();
-    }
-
     public function clearFilters()
     {
         $this->reset([
@@ -152,8 +132,6 @@ class WeeklyScheduleGrid extends Component
             'instrument_id',
             'age_group',
             'branch_id',
-            'start_date',
-            'end_date',
         ]);
 
         $this->loadScheduleData();

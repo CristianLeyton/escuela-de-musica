@@ -10,7 +10,6 @@ class ScheduleFilter extends Component
 {
     // Filtros
     public $teacher_id = '';
-    public $student_id = '';
     public $instrument_id = '';
     public $age_group = '';
     public $branch_id = '';
@@ -33,12 +32,9 @@ class ScheduleFilter extends Component
 
     protected $queryString = [
         'teacher_id' => ['except' => ''],
-        'student_id' => ['except' => ''],
         'instrument_id' => ['except' => ''],
         'age_group' => ['except' => ''],
         'branch_id' => ['except' => ''],
-        'start_date' => ['except' => ''],
-        'end_date' => ['except' => ''],
     ];
 
     public function mount()
@@ -55,7 +51,6 @@ class ScheduleFilter extends Component
         try {
             $response = Http::withoutVerifying()->get(url('/api/schedules/weekly'), [
                 'teacher_id' => $this->teacher_id ?: null,
-                'student_id' => $this->student_id ?: null,
                 'instrument_id' => $this->instrument_id ?: null,
                 'age_group' => $this->age_group ?: null,
                 'branch_id' => $this->branch_id ?: null,
@@ -65,15 +60,13 @@ class ScheduleFilter extends Component
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 $this->gridData = $data['data']['grid'] ?? [];
                 $this->availableHours = $data['data']['available_hours'] ?? [];
                 $this->daysOfWeek = $data['data']['days_of_week'] ?? [];
                 $this->dateRange = $data['data']['date_range'] ?? [];
                 $this->teachers = $data['filters']['teachers'] ?? [];
-                $this->students = $data['filters']['students'] ?? [];
                 $this->instruments = $data['filters']['instruments'] ?? [];
-                $this->branches = $data['filters']['branches'] ?? [];
                 $this->ageGroups = $data['filters']['age_groups'] ?? [];
             }
         } catch (\Exception $e) {
@@ -85,14 +78,14 @@ class ScheduleFilter extends Component
 
     public function updated($property)
     {
-        if (in_array($property, ['teacher_id', 'student_id', 'instrument_id', 'age_group', 'branch_id', 'start_date', 'end_date'])) {
+        if (in_array($property, ['teacher_id', 'instrument_id', 'age_group', 'branch_id'])) {
             $this->loadData();
         }
     }
 
     public function clearFilters()
     {
-        $this->reset(['teacher_id', 'student_id', 'instrument_id', 'age_group', 'branch_id']);
+        $this->reset(['teacher_id', 'instrument_id', 'age_group', 'branch_id']);
         $this->loadData();
     }
 

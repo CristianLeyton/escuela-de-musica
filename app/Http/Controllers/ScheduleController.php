@@ -17,17 +17,10 @@ class ScheduleController extends Controller
     {
         $request->validate([
             'teacher_id' => 'nullable|exists:teachers,id',
-            'student_id' => 'nullable|exists:students,id',
             'instrument_id' => 'nullable|exists:instruments,id',
             'age_group' => 'nullable|string',
             'branch_id' => 'nullable|exists:branches,id',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
-
-        // Fechas por defecto: semana actual
-        $startDate = $request->start_date ? Carbon::parse($request->start_date) : Carbon::now()->startOfWeek(Carbon::MONDAY);
-        $endDate = $request->end_date ? Carbon::parse($request->end_date) : Carbon::now()->endOfWeek(Carbon::SUNDAY);
 
         // Query base para schedules
         $schedulesQuery = Schedule::with([
@@ -50,16 +43,9 @@ class ScheduleController extends Controller
             $schedulesQuery->where('branch_id', $request->branch_id);
         }
 
-        // Filtro por estudiante (solo si hay clases)
-        if ($request->student_id) {
-            $schedulesQuery->whereHas('classes.students', function ($query) use ($request) {
-                $query->where('students.id', $request->student_id);
-            });
-        }
-
-        // Filtro por grupo etario (solo si hay clases)
+        // Filtro por grupo etario (a través de enrollments ahora)
         if ($request->age_group) {
-            $schedulesQuery->whereHas('classes.students', function ($query) use ($request) {
+            $schedulesQuery->whereHas('enrollments.student', function ($query) use ($request) {
                 $query->where('students.age_group', $request->age_group);
             });
         }
@@ -84,7 +70,7 @@ class ScheduleController extends Controller
                 $availableHours[] = $startTime;
             }
 
-            // Crear entrada para el schedule directamente (sin clases)
+            // Crear entrada para el schedule
             $gridData[$schedule->day_of_week][$startTime][] = [
                 'id' => $schedule->id,
                 'schedule_id' => $schedule->id,
@@ -92,13 +78,12 @@ class ScheduleController extends Controller
                 'instrument' => $schedule->instrument->name,
                 'branch' => $schedule->branch->name,
                 'classroom' => $schedule->classroom->name ?? 'N/A',
-                'students' => [], // Schedule no tiene estudiantes directamente
+                'students' => [],
                 'age_groups' => [],
                 'status' => $schedule->status,
                 'duration_minutes' => $schedule->start_time->diffInMinutes($schedule->end_time),
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'date' => $startDate->format('Y-m-d'), // Fecha de inicio de semana
                 'is_active' => $schedule->is_active,
             ];
         }
@@ -114,13 +99,6 @@ class ScheduleController extends Controller
                     'name' => $teacher->user->name . ' ' . $teacher->user->lastname,
                 ];
             }),
-            'students' => Student::with('user')->where('is_active', true)->get()->map(function ($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => $student->user->name . ' ' . $student->user->lastname,
-                    'age_group' => $student->age_group,
-                ];
-            }),
             'instruments' => Instrument::where('is_active', true)->get(['id', 'name']),
             'branches' => Branch::where('is_active', true)->get(['id', 'name']),
             'age_groups' => Student::where('is_active', true)->distinct()->pluck('age_group')->filter(),
@@ -132,10 +110,6 @@ class ScheduleController extends Controller
                 'grid' => $gridData,
                 'available_hours' => $availableHours,
                 'days_of_week' => $daysOfWeek,
-                'date_range' => [
-                    'start' => $startDate->format('Y-m-d'),
-                    'end' => $endDate->format('Y-m-d'),
-                ],
             ],
             'filters' => $filters,
         ]);
@@ -148,7 +122,7 @@ class ScheduleController extends Controller
             'branch',
             'classroom',
             'instrument',
-            'classes.students.user'
+            'enrollments.student.user'
         ])->findOrFail($id);
 
         return response()->json([
