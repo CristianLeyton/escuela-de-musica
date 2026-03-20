@@ -112,7 +112,7 @@
                                             @if (empty($classes))
                                                 <div
                                                     class="min-h-[3.5rem] rounded-lg border border-dashed border-gray-300 bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
-                                                    <span class="text-[11px] font-medium text-gray-400">Libre</span>
+                                                    <span class="text-[11px] font-medium text-gray-400"></span>
                                                 </div>
                                             @else
                                                 <div class="space-y-1.5">
