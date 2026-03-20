@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Teachers;
 
 use App\Filament\Resources\Teachers\Pages\ManageTeachers;
-use App\Models\User;
 use App\Models\Teacher;
+use App\Models\Branch;
+use App\Models\Instrument;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -15,13 +16,14 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -49,59 +51,121 @@ class TeacherResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        $days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+        $timeSlots = [
+            ['key' => 'h09_00', 'label' => '09:00'],
+            ['key' => 'h10_00', 'label' => '10:00'],
+            ['key' => 'h11_00', 'label' => '11:00'],
+            ['key' => 'h12_00', 'label' => '12:00'],
+            ['key' => 'h13_00', 'label' => '13:00'],
+            ['key' => 'h14_00', 'label' => '14:00'],
+            ['key' => 'h15_00', 'label' => '15:00'],
+            ['key' => 'h16_00', 'label' => '16:00'],
+            ['key' => 'h17_00', 'label' => '17:00'],
+        ];
+
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->relationship('user', 'name')
+                TextInput::make('name')
+                    ->label('Nombre completo del profesor')
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+
+                Select::make('instrument_id')
+                    ->label('Instrumento que enseñará')
+                    ->options(
+                        Instrument::query()
+                            ->where('is_active', true)
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
                     ->searchable()
-                    ->getSearchResultsUsing(function (string $search) {
-                        return User::where('name', 'like', "%{$search}%")
-                            ->orWhere('lastname', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->limit(50)
-                            ->pluck('name', 'id');
-                    })
-                    ->getOptionLabelUsing(function ($value) {
-                        $user = User::find($value);
-                        return $user ? $user->name . ' ' . $user->lastname : $value;
-                    })
+                    ->preload()
+                    ->required(),
+
+                Select::make('age_range')
+                    ->label('Rango de edad')
+                    ->options([
+                        '4-6' => '4 a 6 años',
+                        '7-10' => '7 a 10 años',
+                        '11-14' => '11 a 14 años',
+                        '15-17' => '15 a 17 años',
+                        '18-99' => '18 años en adelante',
+                    ])
+                    ->default('7-10')
+                    ->live()
                     ->required()
-                    ->label('Usuario'),
-                TextInput::make('specialization')
-                    ->label('Especialización'),
-                TextInput::make('experience_years')
-                    ->required()
-                    ->numeric()
-                    ->default(0)
-                    ->label('Años de Experiencia'),
-                Textarea::make('bio')
-                    ->columnSpanFull()
-                    ->label('Biografía'),
+                    ->afterStateUpdated(function ($state, callable $set): void {
+                        [$minAge, $maxAge] = array_map('intval', explode('-', (string) $state));
+                        $set('min_age', $minAge);
+                        $set('max_age', $maxAge);
+                    }),
+
                 Toggle::make('is_active')
-                    ->required()
                     ->label('Activo')
                     ->default(true),
-            ]);
+
+                Hidden::make('min_age')
+                    ->default(7),
+                Hidden::make('max_age')
+                    ->default(10),
+
+                Hidden::make('schedule_branches')
+                    ->default(function () use ($days): array {
+                        $firstBranchId = Branch::query()->orderBy('name')->value('id');
+
+                        return collect($days)->mapWithKeys(
+                            fn(string $day): array => [$day => $firstBranchId]
+                        )->all();
+                    }),
+
+                Hidden::make('schedule_slots')
+                    ->default(function () use ($days, $timeSlots): array {
+                        $default = [];
+
+                        foreach ($days as $day) {
+                            foreach ($timeSlots as $slot) {
+                                $default[$day][$slot['key']] = false;
+                            }
+                        }
+
+                        return $default;
+                    }),
+
+                View::make('filament.forms.components.teacher-schedule-wizard-grid')
+                    ->viewData([
+                        'days' => $days,
+                        'timeSlots' => $timeSlots,
+                        'branches' => Branch::query()
+                            ->where('is_active', true)
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray(),
+                    ])
+                    ->columnSpanFull(),
+            ])
+            ->columns(2);
     }
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextEntry::make('user.name')
+                TextEntry::make('name')
                     ->label('Nombre'),
-                TextEntry::make('user.email')
-                    ->label('Email'),
-                TextEntry::make('specialization')
-                    ->placeholder('-')
-                    ->label('Especialización'),
-                TextEntry::make('experience_years')
-                    ->numeric()
-                    ->label('Años de Experiencia'),
-                TextEntry::make('bio')
-                    ->placeholder('-')
-                    ->columnSpanFull()
-                    ->label('Biografía'),
+                TextEntry::make('username')
+                    ->label('Usuario'),
+                TextEntry::make('instruments.name')
+                    ->label('Instrumentos')
+                    ->bulleted(),
+                TextEntry::make('min_age')
+                    ->label('Edad Mínima')
+                    ->numeric(),
+                TextEntry::make('max_age')
+                    ->label('Edad Máxima')
+                    ->numeric(),
                 IconEntry::make('is_active')
                     ->boolean()
                     ->label('Activo'),
@@ -120,21 +184,28 @@ class TeacherResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('user_id')
+            ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(),
-                TextColumn::make('user.email')
-                    ->label('Email')
+                TextColumn::make('username')
+                    ->label('Usuario')
                     ->searchable(),
-                TextColumn::make('specialization')
+                TextColumn::make('instruments.name')
+                    ->label('Instrumentos')
                     ->searchable()
-                    ->label('Especialización'),
-                TextColumn::make('experience_years')
+                    ->formatStateUsing(function ($state) {
+                        return is_array($state) ? implode(', ', $state) : $state;
+                    }),
+                TextColumn::make('min_age')
                     ->numeric()
                     ->sortable()
-                    ->label('Años Exp.'),
+                    ->label('Edad Mín.'),
+                TextColumn::make('max_age')
+                    ->numeric()
+                    ->sortable()
+                    ->label('Edad Máx.'),
                 IconColumn::make('is_active')
                     ->boolean()
                     ->label('Activo'),
@@ -174,6 +245,8 @@ class TeacherResource extends Resource
     {
         return [
             'index' => ManageTeachers::route('/'),
+            'create' => Pages\CreateTeacher::route('/create'),
+            'edit' => Pages\EditTeacher::route('/{record}/edit'),
         ];
     }
 

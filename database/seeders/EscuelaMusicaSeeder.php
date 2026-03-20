@@ -76,7 +76,7 @@ class EscuelaMusicaSeeder extends Seeder
         ]);
         $admin->assignRole('admin');
 
-        // Crear usuarios teacheres
+        // Crear usuarios profesores
         $teachersData = [
             ['name' => 'Carlos', 'lastname' => 'Rodríguez', 'email' => 'carlos@escuela.com', 'specialization' => 'Guitarra', 'username' => 'carlos_rod'],
             ['name' => 'Ana', 'lastname' => 'Martínez', 'email' => 'ana@escuela.com', 'specialization' => 'Piano', 'username' => 'ana_mar'],
@@ -93,10 +93,14 @@ class EscuelaMusicaSeeder extends Seeder
             $user->assignRole('teacher');
 
             Teacher::firstOrCreate(['user_id' => $user->id], [
+                'name' => "{$data['name']} {$data['lastname']}",
+                'username' => $data['username'],
                 'specialization' => $data['specialization'],
                 'experience_years' => rand(3, 15),
-                'bio' => "teacher de {$data['specialization']} con amplia experiencia",
-                'is_active' => true
+                'bio' => "Profesor de {$data['specialization']} con amplia experiencia",
+                'min_age' => 7,
+                'max_age' => 17,
+                'is_active' => true,
             ]);
         }
 
@@ -127,14 +131,14 @@ class EscuelaMusicaSeeder extends Seeder
             ]);
         }
 
-        // Asignar instrumentos a teacheres
+        // Asignar instrumentos a profesores
         $teachers = Teacher::all();
         $instruments = Instrument::all();
 
         foreach ($teachers as $teacher) {
-            // Cada teacher enseña 1-3 instrumentos
+            // Cada profesor enseña 1-3 instrumentos
             $teacherInstruments = $instruments->random(rand(1, 3));
-            $teacher->instruments()->attach($teacherInstruments->pluck('id'));
+            $teacher->instruments()->syncWithoutDetaching($teacherInstruments->pluck('id')->all());
         }
 
         $this->command->info('✅ Datos iniciales de la escuela de música creados exitosamente');

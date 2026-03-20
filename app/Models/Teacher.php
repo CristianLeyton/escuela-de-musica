@@ -12,15 +12,21 @@ class Teacher extends Model
 
     protected $fillable = [
         'user_id',
+        'name',
+        'username',
         'specialization',
         'experience_years',
         'bio',
         'is_active',
+        'min_age',
+        'max_age',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'experience_years' => 'integer',
+        'min_age' => 'integer',
+        'max_age' => 'integer',
     ];
 
     // Relaciones
