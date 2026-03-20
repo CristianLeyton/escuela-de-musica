@@ -90,6 +90,7 @@ class TeacherResource extends Resource
                     ->options([
                         '4-6' => '4 a 6 años',
                         '7-10' => '7 a 10 años',
+                        '7-17' => '7 a 17 años',
                         '11-14' => '11 a 14 años',
                         '15-17' => '15 a 17 años',
                         '18-99' => '18 años en adelante',
