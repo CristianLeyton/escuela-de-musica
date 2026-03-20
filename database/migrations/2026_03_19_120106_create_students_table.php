@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('birth_date');
-            $table->string('age_group'); // niño, adolescente, adulto
             $table->string('phone')->nullable();
             $table->text('emergency_contact')->nullable();
             $table->text('medical_notes')->nullable();

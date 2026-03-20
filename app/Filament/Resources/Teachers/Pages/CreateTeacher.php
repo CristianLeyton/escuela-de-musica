@@ -29,7 +29,7 @@ class CreateTeacher extends CreateRecord
             'instrument_id' => Arr::get($data, 'instrument_id'),
         ];
 
-        unset($data['schedule_branches'], $data['schedule_slots'], $data['age_range']);
+        unset($data['schedule_branches'], $data['schedule_slots']);
 
         return $data;
     }

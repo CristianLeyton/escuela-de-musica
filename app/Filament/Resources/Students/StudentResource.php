@@ -71,14 +71,6 @@ class StudentResource extends Resource
                 DatePicker::make('birth_date')
                     ->required()
                     ->label('Fecha de Nacimiento'),
-                Select::make('age_group')
-                    ->required()
-                    ->label('Grupo Etario')
-                    ->options([
-                        'niño' => 'Niño',
-                        'adolescente' => 'Adolescente',
-                        'adulto' => 'Adulto',
-                    ]),
                 TextInput::make('phone')
                     ->tel()
                     ->label('Teléfono'),
@@ -106,8 +98,9 @@ class StudentResource extends Resource
                 TextEntry::make('birth_date')
                     ->date()
                     ->label('Fecha de Nacimiento'),
-                TextEntry::make('age_group')
-                    ->label('Grupo Etario'),
+                TextEntry::make('age')
+                    ->label('Edad')
+                    ->numeric(),
                 TextEntry::make('phone')
                     ->placeholder('-')
                     ->label('Teléfono'),
@@ -149,9 +142,9 @@ class StudentResource extends Resource
                     ->date()
                     ->sortable()
                     ->label('Fecha Nac.'),
-                TextColumn::make('age_group')
+                TextColumn::make('age')
                     ->searchable()
-                    ->label('Grupo Etario'),
+                    ->label('Edad'),
                 TextColumn::make('phone')
                     ->searchable()
                     ->label('Teléfono'),

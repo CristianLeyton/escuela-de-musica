@@ -88,7 +88,7 @@ class EnrollmentResource extends Resource
                                     '%s %s (%s)',
                                     $student->user->name,
                                     $student->user->lastname,
-                                    $student->age_group
+                                    $student->age !== null ? 'Edad '.$student->age : 'Edad -'
                                 );
                                 return [$student->id => $label];
                             });

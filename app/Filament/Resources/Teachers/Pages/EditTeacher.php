@@ -42,7 +42,6 @@ class EditTeacher extends EditRecord
         }
 
         $data['instrument_id'] = $this->record->instruments()->value('instruments.id');
-        $data['age_range'] = "{$this->record->min_age}-{$this->record->max_age}";
         $data['schedule_branches'] = $scheduleBranches;
         $data['schedule_slots'] = $scheduleSlots;
 
@@ -57,7 +56,7 @@ class EditTeacher extends EditRecord
             'instrument_id' => (int) Arr::get($data, 'instrument_id'),
         ];
 
-        unset($data['schedule_branches'], $data['schedule_slots'], $data['instrument_id'], $data['age_range']);
+        unset($data['schedule_branches'], $data['schedule_slots'], $data['instrument_id']);
 
         return $data;
     }

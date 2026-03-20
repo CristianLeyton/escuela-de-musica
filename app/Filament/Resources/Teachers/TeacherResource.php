@@ -85,33 +85,26 @@ class TeacherResource extends Resource
                     ->preload()
                     ->required(),
 
-                Select::make('age_range')
-                    ->label('Rango de edad')
-                    ->options([
-                        '4-6' => '4 a 6 años',
-                        '7-10' => '7 a 10 años',
-                        '7-17' => '7 a 17 años',
-                        '11-14' => '11 a 14 años',
-                        '15-17' => '15 a 17 años',
-                        '18-99' => '18 años en adelante',
-                    ])
-                    ->default('7-10')
-                    ->live()
+                TextInput::make('min_age')
+                    ->label('Edad mínima (alumnos)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(120)
                     ->required()
-                    ->afterStateUpdated(function ($state, callable $set): void {
-                        [$minAge, $maxAge] = array_map('intval', explode('-', (string) $state));
-                        $set('min_age', $minAge);
-                        $set('max_age', $maxAge);
-                    }),
+                    ->default(7),
+
+                TextInput::make('max_age')
+                    ->label('Edad máxima (alumnos)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(120)
+                    ->required()
+                    ->default(17)
+                    ->helperText('Debe ser mayor o igual que la edad mínima.'),
 
                 Toggle::make('is_active')
                     ->label('Activo')
                     ->default(true),
-
-                Hidden::make('min_age')
-                    ->default(7),
-                Hidden::make('max_age')
-                    ->default(10),
 
                 Hidden::make('schedule_branches')
                     ->default(function () use ($days): array {

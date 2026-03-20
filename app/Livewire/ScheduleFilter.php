@@ -2,58 +2,75 @@
 
 namespace App\Livewire;
 
+use App\Models\Branch;
+use App\Models\Instrument;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ScheduleFilter extends Component
 {
-    // Filtros
-    public $teacher_id = '';
-    public $instrument_id = '';
-    public $age_group = '';
-    public $branch_id = '';
-    public $start_date = '';
-    public $end_date = '';
+    public string $instrument_id = '';
 
-    // Datos
-    public $gridData = [];
-    public $availableHours = [];
-    public $daysOfWeek = [];
-    public $dateRange = [];
-    public $teachers = [];
-    public $students = [];
-    public $instruments = [];
-    public $branches = [];
-    public $ageGroups = [];
-    public $loading = false;
-    public $selectedClass = null;
-    public $showClassModal = false;
+    public string $branch_id = '';
+
+    public string $age = '';
+
+    public array $gridData = [];
+
+    public array $availableHours = [];
+
+    public array $daysOfWeek = [];
+
+    public array $dateRange = [];
+
+    public array $instruments = [];
+
+    public array $branches = [];
+
+    public bool $loading = false;
+
+    public bool $showClassModal = false;
+
+    /** @var array<int, array{id: int, teacher: string, branch: string, enrolled_count: int}> */
+    public array $modalOfferings = [];
+
+    public string $modalInstrument = '';
+
+    public string $modalDay = '';
+
+    public string $modalHour = '';
 
     protected $queryString = [
-        'teacher_id' => ['except' => ''],
         'instrument_id' => ['except' => ''],
-        'age_group' => ['except' => ''],
         'branch_id' => ['except' => ''],
+        'age' => ['except' => ''],
     ];
 
-    public function mount()
+    public function mount(): void
     {
-        $this->start_date = now()->startOfWeek()->format('Y-m-d');
-        $this->end_date = now()->endOfWeek()->format('Y-m-d');
+        $this->applyDefaultFilters();
         $this->loadData();
     }
 
-    public function loadData()
+    protected function applyDefaultFilters(): void
+    {
+        $centroId = Branch::query()->where('is_active', true)->where('name', 'Centro')->value('id');
+        $this->branch_id = $centroId ? (string) $centroId : '';
+
+        $firstInstrumentId = Instrument::query()->where('is_active', true)->orderBy('name')->value('id');
+        $this->instrument_id = $firstInstrumentId ? (string) $firstInstrumentId : '';
+    }
+
+    public function loadData(): void
     {
         $this->loading = true;
 
         try {
             $response = Http::withoutVerifying()->get(url('/api/schedules/weekly'), [
-                'teacher_id' => $this->teacher_id ?: null,
-                'instrument_id' => $this->instrument_id ?: null,
-                'age_group' => $this->age_group ?: null,
-                'branch_id' => $this->branch_id ?: null,
+                'instrument_id' => $this->instrument_id !== '' ? $this->instrument_id : null,
+                'branch_id' => $this->branch_id !== '' ? $this->branch_id : null,
+                'age' => $this->age !== '' ? $this->age : null,
             ]);
 
             if ($response->successful()) {
@@ -63,51 +80,52 @@ class ScheduleFilter extends Component
                 $this->availableHours = $data['data']['available_hours'] ?? [];
                 $this->daysOfWeek = $data['data']['days_of_week'] ?? [];
                 $this->dateRange = $data['data']['date_range'] ?? [];
-                $this->teachers = $data['filters']['teachers'] ?? [];
                 $this->instruments = $data['filters']['instruments'] ?? [];
-                $this->ageGroups = $data['filters']['age_groups'] ?? [];
                 $this->branches = $data['filters']['branches'] ?? [];
             }
         } catch (\Exception $e) {
-            Log::error('Error loading schedule data: ' . $e->getMessage());
+            Log::error('Error loading schedule data: '.$e->getMessage());
         } finally {
             $this->loading = false;
         }
     }
 
-    public function updated($property)
+    public function updated($property): void
     {
-        if (in_array($property, ['teacher_id', 'instrument_id', 'age_group', 'branch_id'])) {
+        if (in_array($property, ['instrument_id', 'branch_id', 'age'], true)) {
             $this->loadData();
         }
     }
 
-    public function clearFilters()
+    public function clearFilters(): void
     {
-        $this->reset(['teacher_id', 'instrument_id', 'age_group', 'branch_id']);
+        $this->age = '';
+        $this->applyDefaultFilters();
         $this->loadData();
     }
 
-    public function showClassDetails($classId)
+    /**
+     * @param  array{instrument: string, day: string, hour: string, offerings: array<int, array<string, mixed>>}  $payload
+     */
+    public function openCellModal(array $payload): void
     {
-        try {
-            $response = Http::withoutVerifying()->get(url("/api/schedules/{$classId}"));
-            if ($response->successful()) {
-                $this->selectedClass = $response->json('data');
-                $this->showClassModal = true;
-            }
-        } catch (\Exception $e) {
-            Log::error('Error loading class details: ' . $e->getMessage());
-        }
+        $this->modalInstrument = (string) ($payload['instrument'] ?? '');
+        $this->modalDay = (string) ($payload['day'] ?? '');
+        $this->modalHour = (string) ($payload['hour'] ?? '');
+        $this->modalOfferings = array_values($payload['offerings'] ?? []);
+        $this->showClassModal = true;
     }
 
-    public function closeModal()
+    public function closeModal(): void
     {
         $this->showClassModal = false;
-        $this->selectedClass = null;
+        $this->modalOfferings = [];
+        $this->modalInstrument = '';
+        $this->modalDay = '';
+        $this->modalHour = '';
     }
 
-    public function getClassesForCell($day, $hour)
+    public function getClassesForCell($day, $hour): array
     {
         return $this->gridData[$day][$hour] ?? [];
     }

@@ -2,122 +2,114 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Schedule;
-use App\Models\ClassModel;
-use App\Models\Teacher;
-use App\Models\Student;
-use App\Models\Instrument;
 use App\Models\Branch;
+use App\Models\Instrument;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
     public function getWeeklySchedule(Request $request)
     {
         $request->validate([
-            'teacher_id' => 'nullable|exists:teachers,id',
             'instrument_id' => 'nullable|exists:instruments,id',
-            'age_group' => 'nullable|string',
             'branch_id' => 'nullable|exists:branches,id',
+            'age' => 'nullable|integer|min:0|max:120',
         ]);
 
-        // Query base para schedules
         $schedulesQuery = Schedule::with([
             'teacher.user',
             'branch',
             'classroom',
             'instrument',
-            'enrollments.student.user'
+            'enrollments.student.user',
         ]);
 
-        // Aplicar filtros
-        if ($request->teacher_id) {
-            $schedulesQuery->where('teacher_id', $request->teacher_id);
-        }
-
-        if ($request->instrument_id) {
+        if ($request->filled('instrument_id')) {
             $schedulesQuery->where('instrument_id', $request->instrument_id);
         }
 
-        if ($request->branch_id) {
+        if ($request->filled('branch_id')) {
             $schedulesQuery->where('branch_id', $request->branch_id);
         }
 
-        // Filtro por grupo etario (a través de enrollments ahora)
-        if ($request->age_group) {
-            $schedulesQuery->whereHas('enrollments.student', function ($query) use ($request) {
-                $query->where('students.age_group', $request->age_group);
+        if ($request->filled('age')) {
+            $age = (int) $request->age;
+            $schedulesQuery->whereHas('teacher', function ($query) use ($age): void {
+                $query->whereNotNull('min_age')
+                    ->whereNotNull('max_age')
+                    ->where('min_age', '<=', $age)
+                    ->where('max_age', '>=', $age);
             });
         }
 
-        // Mostrar también horarios inactivos para que se vean en el grid
         $schedules = $schedulesQuery->get();
 
-        // Estructurar datos para el grid
-        $gridData = [];
         $daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
         $availableHours = [];
+        $buckets = [];
 
         foreach ($schedules as $schedule) {
-            $dayIndex = array_search($schedule->day_of_week, $daysOfWeek);
-            if ($dayIndex === false) continue;
+            if (! in_array($schedule->day_of_week, $daysOfWeek, true)) {
+                continue;
+            }
 
             $startTime = $schedule->start_time->format('H:i');
-            $endTime = $schedule->end_time->format('H:i');
 
-            // Agregar hora a las disponibles
-            if (!in_array($startTime, $availableHours)) {
+            if (! in_array($startTime, $availableHours, true)) {
                 $availableHours[] = $startTime;
             }
 
-            // Crear entrada para el schedule
-            $students = [];
-            $ageGroups = [];
+            $key = $schedule->day_of_week.'|'.$startTime.'|'.$schedule->instrument_id;
+            $buckets[$key][] = $schedule;
+        }
 
-            // Cargar estudiantes desde enrollments
-            foreach ($schedule->enrollments as $enrollment) {
-                if ($enrollment->student && $enrollment->status === 'active') {
-                    $students[] = [
-                        'id' => $enrollment->student->id,
-                        'name' => $enrollment->student->user->name . ' ' . $enrollment->student->user->lastname,
-                        'age_group' => $enrollment->student->age_group,
+        $gridData = [];
+
+        foreach ($buckets as $group) {
+            $first = $group[0];
+            $day = $first->day_of_week;
+            $startTime = $first->start_time->format('H:i');
+
+            $branchNames = collect($group)
+                ->map(fn (Schedule $s) => $s->branch?->name)
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values()
+                ->implode(', ');
+
+            $offerings = collect($group)
+                ->map(function (Schedule $sch) {
+                    return [
+                        'id' => $sch->id,
+                        'teacher' => self::formatTeacherLabel($sch),
+                        'branch' => $sch->branch?->name ?? '—',
+                        'enrolled_count' => $sch->enrollments->where('status', 'active')->count(),
                     ];
-                    $ageGroups[] = $enrollment->student->age_group;
-                }
-            }
+                })
+                ->values()
+                ->all();
 
-            $gridData[$schedule->day_of_week][$startTime][] = [
-                'id' => $schedule->id,
-                'schedule_id' => $schedule->id,
-                'teacher' => $schedule->teacher->user->name . ' ' . $schedule->teacher->user->lastname,
-                'instrument' => $schedule->instrument->name,
-                'branch' => $schedule->branch->name,
-                'classroom' => $schedule->classroom->name ?? 'N/A',
-                'students' => $students,
-                'age_groups' => array_unique($ageGroups),
-                'status' => $schedule->status,
-                'duration_minutes' => $schedule->start_time->diffInMinutes($schedule->end_time),
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'is_active' => $schedule->is_active,
+            $gridData[$day][$startTime][] = [
+                'instrument' => $first->instrument?->name ?? 'Instrumento',
+                'instrument_id' => $first->instrument_id,
+                'branches' => $branchNames,
+                'offerings' => $offerings,
             ];
         }
 
-        // Ordenar horas
         sort($availableHours);
 
-        // Obtener datos para filtros
         $filters = [
-            'teachers' => Teacher::with('user')->where('is_active', true)->get()->map(function ($teacher) {
-                return [
-                    'id' => $teacher->id,
-                    'name' => $teacher->user->name . ' ' . $teacher->user->lastname,
-                ];
-            }),
-            'instruments' => Instrument::where('is_active', true)->get(['id', 'name']),
-            'branches' => Branch::where('is_active', true)->get(['id', 'name']),
-            'age_groups' => Student::where('is_active', true)->distinct()->pluck('age_group')->filter(),
+            'instruments' => Instrument::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'branches' => Branch::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ];
 
         return response()->json([
@@ -138,12 +130,30 @@ class ScheduleController extends Controller
             'branch',
             'classroom',
             'instrument',
-            'enrollments.student.user'
+            'enrollments.student.user',
         ])->findOrFail($id);
 
         return response()->json([
             'success' => true,
             'data' => $schedule,
         ]);
+    }
+
+    protected static function formatTeacherLabel(Schedule $schedule): string
+    {
+        $teacher = $schedule->teacher;
+        if (! $teacher) {
+            return 'Sin profesor';
+        }
+
+        $user = $teacher->user;
+        if ($user) {
+            $name = trim(($user->name ?? '').' '.($user->lastname ?? ''));
+            if ($name !== '') {
+                return $name;
+            }
+        }
+
+        return $teacher->name ?? 'Sin nombre';
     }
 }

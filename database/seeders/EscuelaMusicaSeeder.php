@@ -106,11 +106,11 @@ class EscuelaMusicaSeeder extends Seeder
 
         // Crear usuarios students
         $studentsData = [
-            ['name' => 'María', 'lastname' => 'López', 'email' => 'maria@escuela.com', 'age_group' => 'adolescente', 'username' => 'maria_lop'],
-            ['name' => 'Juan', 'lastname' => 'Pérez', 'email' => 'juan@escuela.com', 'age_group' => 'niño', 'username' => 'juan_per'],
-            ['name' => 'Laura', 'lastname' => 'Sánchez', 'email' => 'laura@escuela.com', 'age_group' => 'adulto', 'username' => 'laura_san'],
-            ['name' => 'Pedro', 'lastname' => 'Díaz', 'email' => 'pedro@escuela.com', 'age_group' => 'adolescente', 'username' => 'pedro_dia'],
-            ['name' => 'Sofía', 'lastname' => 'Fernández', 'email' => 'sofia@escuela.com', 'age_group' => 'niño', 'username' => 'sofia_fer'],
+            ['name' => 'María', 'lastname' => 'López', 'email' => 'maria@escuela.com', 'username' => 'maria_lop'],
+            ['name' => 'Juan', 'lastname' => 'Pérez', 'email' => 'juan@escuela.com', 'username' => 'juan_per'],
+            ['name' => 'Laura', 'lastname' => 'Sánchez', 'email' => 'laura@escuela.com', 'username' => 'laura_san'],
+            ['name' => 'Pedro', 'lastname' => 'Díaz', 'email' => 'pedro@escuela.com', 'username' => 'pedro_dia'],
+            ['name' => 'Sofía', 'lastname' => 'Fernández', 'email' => 'sofia@escuela.com', 'username' => 'sofia_fer'],
         ];
 
         foreach ($studentsData as $data) {
@@ -124,7 +124,6 @@ class EscuelaMusicaSeeder extends Seeder
 
             Student::firstOrCreate(['user_id' => $user->id], [
                 'birth_date' => now()->subYears(rand(8, 40)),
-                'age_group' => $data['age_group'],
                 'phone' => '555-' . rand(1000, 9999),
                 'emergency_contact' => 'Contacto de emergencia',
                 'is_active' => true

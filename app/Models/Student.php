@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Student extends Model
 {
@@ -13,7 +14,6 @@ class Student extends Model
     protected $fillable = [
         'user_id',
         'birth_date',
-        'age_group',
         'phone',
         'emergency_contact',
         'medical_notes',
@@ -24,6 +24,8 @@ class Student extends Model
         'is_active' => 'boolean',
         'birth_date' => 'date',
     ];
+
+    protected $appends = ['age'];
 
     // Relaciones
     public function user()
@@ -39,5 +41,18 @@ class Student extends Model
     public function classes()
     {
         return $this->belongsToMany(ClassModel::class, 'enrollments');
+    }
+
+    public function getAgeAttribute(): ?int
+    {
+        if (! $this->birth_date) {
+            return null;
+        }
+
+        $date = $this->birth_date instanceof Carbon
+            ? $this->birth_date
+            : Carbon::parse($this->birth_date);
+
+        return $date->age;
     }
 }

@@ -94,7 +94,8 @@ class ScheduleResource extends Resource
                     ->relationship('branch', 'name')
                     ->searchable()
                     ->required()
-                    ->label('Sede'),
+                    ->label('Sede')
+                    ->default(fn () => Branch::query()->where('name', 'Centro')->value('id')),
                 Select::make('classroom_id')
                     ->relationship('classroom', 'name')
                     ->searchable()
@@ -104,7 +105,8 @@ class ScheduleResource extends Resource
                     ->relationship('instrument', 'name')
                     ->searchable()
                     ->required()
-                    ->label('Instrumento'),
+                    ->label('Instrumento')
+                    ->default(fn () => Instrument::query()->where('is_active', true)->orderBy('name')->value('id')),
                 Select::make('status')
                     ->options([
                         'available' => 'Disponible',
